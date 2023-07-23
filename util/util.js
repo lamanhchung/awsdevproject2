@@ -1,0 +1,41 @@
+import fs from "fs";
+import Jimp from "jimp";
+import axios from "axios";
+
+export async function filterImageFromURL(inputURL) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      axios({
+        method: 'get',
+        url: inputURL,
+        responseType: 'arraybuffer'
+      }).then(({data: imageBuffer}) => {
+        const outpath =
+          "/tmp/filtered." + Math.floor(Math.random() * 2000) + ".jpg";
+        Jimp.read(imageBuffer).then(
+          photo => {
+            photo
+            .resize(256, 256) // resize
+            .quality(60) // set JPEG quality
+            .greyscale() // set greyscale
+            .write(outpath, (img) => {
+              resolve(outpath);
+            });
+          });
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+// deleteLocalFiles
+// helper function to delete files on the local disk
+// useful to cleanup after tasks
+// INPUTS
+//    files: Array<string> an array of absolute paths to files
+ export async function deleteLocalFiles(files) {
+  for (let file of files) {
+    fs.unlinkSync(file);
+  }
+}
